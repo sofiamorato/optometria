@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# SQLite
+*.db
+
+# Node
+node_modules/
+.next/
+dist/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# PDFs generados
+generated_pdfs/
