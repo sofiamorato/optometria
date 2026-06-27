@@ -10,97 +10,230 @@ Solo estructura, dependencias, conexión y modelos (`User`, `Patient`,
 
 ---
 
+# Estado verificado
+
+Se comprobó correctamente que:
+
+- ✅ FastAPI inicia correctamente.
+- ✅ SQLite se conecta correctamente.
+- ✅ Los modelos SQLAlchemy funcionan correctamente.
+- ✅ El endpoint `/health` responde.
+- ✅ La documentación automática (`/docs`) funciona.
+- ✅ El frontend inicia correctamente.
+- ✅ El frontend se comunica correctamente con el backend.
+- ✅ La pantalla temporal muestra el estado real de la API y la base de datos.
+
+---
+
 ## Estructura
 
 ```
 optometria/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py            # App FastAPI + CORS + endpoint /health
+│   │   ├── main.py             # App FastAPI + CORS + endpoint /health
 │   │   ├── core/
-│   │   │   ├── config.py      # Settings (.env)
-│   │   │   └── security.py    # bcrypt + JWT (utilidades, sin endpoints aún)
+│   │   │   ├── config.py       # Settings (.env)
+│   │   │   └── security.py     # bcrypt + JWT (utilidades, sin endpoints aún)
 │   │   ├── db/
-│   │   │   ├── base.py        # Base declarativa SQLAlchemy 2.0
-│   │   │   └── session.py     # Engine + get_db()
+│   │   │   ├── base.py         # Base declarativa SQLAlchemy 2.0
+│   │   │   └── session.py      # Engine + get_db()
 │   │   ├── models/
 │   │   │   ├── user.py
 │   │   │   ├── patient.py
 │   │   │   ├── consultation.py
 │   │   │   └── document.py
-│   │   ├── schemas/            # (vacío, para Pydantic schemas de los CRUD)
-│   │   └── api/routes/         # (vacío, para los endpoints de los CRUD)
-│   ├── alembic/                # Migraciones
+│   │   ├── schemas/            # Vacío (Pydantic Schemas)
+│   │   └── api/
+│   │       └── routes/         # Vacío (Endpoints futuros)
+│   ├── alembic/
 │   ├── requirements.txt
 │   └── .env.example
 │
 └── frontend/
     ├── app/
     │   ├── layout.tsx
-    │   ├── page.tsx             # Página de verificación de conexión
-    │   └── globals.css          # Tema blanco / azul oscuro (ver docs/UX.md)
-    ├── components/ui/           # Carpeta para componentes shadcn/ui
+    │   ├── page.tsx            # Página temporal de prueba
+    │   └── globals.css
+    ├── components/
+    │   └── ui/
     ├── lib/
-    │   ├── api.ts                # Cliente de conexión al backend
-    │   └── utils.ts               # Helper cn() de shadcn/ui
-    ├── components.json           # Configuración shadcn/ui
+    │   ├── api.ts
+    │   └── utils.ts
+    ├── components.json
     ├── package.json
     └── .env.local.example
 ```
 
 ---
 
-## Cómo ejecutar localmente
+# Cómo ejecutar localmente
 
-### 1. Backend
+## 1. Backend
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate        # En Windows: .venv\Scripts\activate
+
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux / macOS
+source .venv/bin/activate
+
 pip install -r requirements.txt
 
-cp .env.example .env             # Ya viene copiado en este entregable
-
-# Generar la migración inicial y aplicarla
-alembic revision --autogenerate -m "inicial: users, patients, consultations, documents"
-alembic upgrade head
-
-uvicorn app.main:app --reload --port 8000
+cp .env.example .env
 ```
 
-Verificar en el navegador: `http://localhost:8000/health`
+Las migraciones están configuradas con Alembic.
 
-### 2. Frontend
+Si se desea crear la migración inicial:
+
+```bash
+alembic revision --autogenerate -m "inicial"
+alembic upgrade head
+```
+
+Durante esta fase del proyecto, el backend también puede crear
+automáticamente las tablas mediante:
+
+```python
+Base.metadata.create_all(bind=engine)
+```
+
+por lo que es posible iniciar el proyecto sin generar migraciones.
+
+Iniciar el servidor:
+
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+Abrir:
+
+```
+http://localhost:8000/health
+```
+
+Debe responder algo similar a:
+
+```json
+{
+    "api": "ok",
+    "base_de_datos": "conectada"
+}
+```
+
+También puede verificarse la documentación automática en:
+
+```
+http://localhost:8000/docs
+```
+
+---
+
+## 2. Frontend
 
 ```bash
 cd frontend
+
 npm install
-cp .env.local.example .env.local   # Ya viene copiado en este entregable
+
+cp .env.local.example .env.local
+
 npm run dev
 ```
 
-Abrir `http://localhost:3000`. Debe mostrar el estado de conexión con
-el backend (`api: ok`, `base_de_datos: conectada`).
+Abrir:
 
-### 3. Agregar componentes shadcn/ui (cuando se empiecen a construir pantallas)
+```
+http://localhost:3000
+```
+
+La pantalla temporal debe mostrar algo similar a:
+
+```
+Optometría — Estructura inicial
+
+Estado del backend:
+ok
+
+BD:
+conectada
+```
+
+---
+
+## 3. Componentes de shadcn/ui
+
+Cuando comiencen las pantallas reales:
 
 ```bash
 cd frontend
+
 npx shadcn@latest add button input card
 ```
 
 ---
 
-## Notas importantes
+# Compatibilidad
 
-- La base de datos es SQLite (`optometria.db`), pero todos los modelos
-  evitan características exclusivas de SQLite para poder migrar a
-  PostgreSQL sin cambios de código (ver `docs/BASE_DATOS.md`).
-- `app/core/security.py` ya incluye las funciones de hashing (bcrypt) y
-  JWT, pero **todavía no hay endpoints de login/registro** — eso
-  corresponde a la Fase 1 (Autenticación) según `GUIA_DESARROLLO.md`.
-- No se han creado los CRUD ni las rutas de la API (carpeta
-  `app/api/routes/` está vacía intencionalmente).
-- El frontend solo tiene una página de verificación de conexión, no
-  pantallas del producto.
+El proyecto fue probado utilizando:
+
+- Python 3.9.12
+- FastAPI 0.115
+- SQLAlchemy 2.0
+- Next.js 14
+- SQLite
+
+Debido a que el entorno utiliza Python 3.9, **no debe utilizarse** la
+sintaxis introducida en Python 3.10.
+
+Incorrecto:
+
+```python
+fecha: date | None
+nombre: str | None
+list[str]
+```
+
+Correcto:
+
+```python
+from typing import List, Optional
+
+fecha: Optional[date]
+nombre: Optional[str]
+List[str]
+```
+
+---
+
+# Notas importantes
+
+- La base de datos utilizada durante el desarrollo es SQLite (`optometria.db`).
+- Los modelos fueron diseñados para facilitar una futura migración a PostgreSQL.
+- `app/core/security.py` ya contiene las funciones para hashing (bcrypt) y JWT, pero todavía **no existen endpoints de autenticación**.
+- Las carpetas `app/api/routes/` y `app/schemas/` permanecen vacías intencionalmente hasta comenzar la implementación de los CRUD.
+- El frontend únicamente contiene una pantalla de verificación de conexión; las pantallas del producto aún no han sido desarrolladas.
+
+---
+
+# Próxima fase
+
+Implementar:
+
+1. Autenticación JWT.
+2. CRUD de Pacientes.
+3. CRUD de Consultas.
+4. CRUD de Documentos.
+
+Posteriormente:
+
+- Generación de PDFs.
+- Wizard de consulta.
+- Integración con IA.
+- Frontend completo.
+- Despliegue.
