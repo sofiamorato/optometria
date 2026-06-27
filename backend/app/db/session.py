@@ -1,0 +1,32 @@
+"""
+Configuración del engine y la sesión de SQLAlchemy.
+
+Usa SQLite para el MVP. El connect_args con check_same_thread solo aplica
+a SQLite y debe removerse si se migra a PostgreSQL.
+"""
+
+from collections.abc import Generator
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
+from app.core.config import settings
+
+connect_args = (
+    {"check_same_thread": False}
+    if settings.DATABASE_URL.startswith("sqlite")
+    else {}
+)
+
+engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_db() -> Generator[Session, None, None]:
+    """Dependencia de FastAPI que entrega una sesión de base de datos por request."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

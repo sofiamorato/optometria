@@ -85,3 +85,11 @@ La aplicación debe sentirse como diligenciar una historia clínica en papel.
 La tecnología debe adaptarse a la doctora.
 
 Nunca la doctora al software.
+
+---
+
+## Ejecución local
+
+Ver [`SETUP.md`](./SETUP.md) para la guía paso a paso de instalación y
+ejecución del backend y el frontend, además del detalle de la estructura
+de carpetas creada para el MVP.

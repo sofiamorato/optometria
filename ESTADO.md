@@ -15,6 +15,7 @@
 - Arquitectura inicial.
 - Diseño de base de datos.
 - Wireframes.
+- Estructura inicial del proyecto (backend + frontend + conexión + modelos).
 
 ---
 
@@ -24,9 +25,9 @@ Implementar el Backend con FastAPI.
 
 Orden recomendado:
 
-1. Configuración inicial.
-2. Base de datos.
-3. Modelos.
+1. Configuración inicial. ✅
+2. Base de datos. ✅
+3. Modelos. ✅
 4. Autenticación.
 5. CRUD Pacientes.
 6. CRUD Consultas.
@@ -36,7 +37,9 @@ Orden recomendado:
 
 ## Pendiente
 
-- Frontend
+- Autenticación (login con JWT)
+- CRUDs
+- Frontend (pantallas reales)
 - PDFs
 - IA
 - Despliegue
